@@ -1,8 +1,8 @@
-from selenium.webdriver import Chrome
+from selenium.webdriver import Remote
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
 import requests
-
+import os
 def sync_data_with_api(url, data):
     try:
         response = requests.post(url, json=data)
@@ -12,6 +12,7 @@ def sync_data_with_api(url, data):
         print("Falha na sincronização.")
         print("Erro:", e)
         return None
+
 
 def extract_table_data(driver):
     tabela = driver.find_element(By.XPATH, '//*[@id="corpoGuia"]/table[1]/tbody')
@@ -40,22 +41,31 @@ def extract_table_data(driver):
     return dados_da_tabela
 
 def main():
+    remoteUrl = os.environ.get("SELENIUM_URL","http://127.0.0.1:4444/wd/hub");
+    siteUrl = os.environ.get("SITE_URL", "https://www.vriconsulting.com.br/guias/guiasIndex.php?idGuia=22")
+    api_url = (os.environ.get("API_URL", 'http://localhost:8080'))
+    print("Iniciando...")
+    print("Configurando...")
+    print("Variaveis de ambiente:")
+    print("- URL remota:"+remoteUrl)
+    print("- Site URL:"+siteUrl)
+    print("- API URL:"+api_url)
+    
     chrome_options = ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--log-level=3');
-    
-    driver = Chrome(options=chrome_options)
-    url = "https://www.vriconsulting.com.br/guias/guiasIndex.php?idGuia=22"
+    driver = Remote(remoteUrl,options=chrome_options)
     print("Navegando ao site...")
-    driver.get(url)
+    driver.get(siteUrl)
     print("Sincronizando...")
-
+    print("Variaveis de ambiente:")
     dados_da_tabela = extract_table_data(driver)
     driver.quit()
 
-    api_url = "http://localhost:8080/documents/sync"
+    
+    sync_endpoint_url = api_url+"/documents/sync"
     print("Sincronizando com banco de dados...")
-    status_code = sync_data_with_api(api_url, dados_da_tabela)
+    status_code = sync_data_with_api(sync_endpoint_url, dados_da_tabela)
 
     if status_code == 201:
         print("Sincronização bem-sucedida.")
