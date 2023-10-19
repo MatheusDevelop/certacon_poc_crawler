@@ -7,7 +7,7 @@ chrome_options.add_argument('--headless')
 
 driver = Chrome(options=chrome_options)
 
-apiUrl = "http://localhost:8080/documentos"
+apiUrl = "http://localhost:8080/documents/sync"
 url = "https://www.vriconsulting.com.br/guias/guiasIndex.php?idGuia=22"
 print("Navegando ao site...")
 driver.get(url)
@@ -31,7 +31,6 @@ for linha in linhas:
         decimais = cells[5].text
         entrada = cells[6].text
         saida = cells[7].text
-
         
         dado = {
             "Numero": n,
