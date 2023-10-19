@@ -58,7 +58,6 @@ def main():
     print("Navegando ao site...")
     driver.get(siteUrl)
     print("Sincronizando...")
-    print("Variaveis de ambiente:")
     dados_da_tabela = extract_table_data(driver)
     driver.quit()
 
